@@ -1,0 +1,10 @@
+<form asp-action="Create">
+    <input type="text" name="PersonId" placeholder="PersonId">
+    <input type="text" name="FullName" placeholder="FullName">
+    <input type="text" name="Address" placeholder="Address">
+    <input type="submit" value="Tạo dữ liệu">
+</form>
+<div>
+    <a asp-action ="Index"> Quay về trang danh sách </a>
+</div>
+<h2>@ViewBag.Message</h2>

@@ -3,92 +3,68 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MvcMovie.Models;
 using MvcMovie.Data;
+using MvcMovie.Applications.DTOs.Products;
+
 
 namespace MvcMovie.Controllers
 {
-    [Route("api/[controller]")]//xác định URL cơ bản cho các endpoint
-    [ApiController]//đây là một API controller
-    public class ProductController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ProductController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
-        public ProductController(ApplicationDbContext context)
+        private readonly IProductService _productService;
+
+        public ProductController(IProductService productService)
         {
-            _context = context;
+            _productService = productService;
         }
 
-        //GET: Product/READ
-        // public async Task<IActionResult> Index()
-        // {
-        //     var model = await _context.Product.ToListAsync();
-        //     return View(model);
-        // }
-
-        // //GET: Product/CREATE (trả về view form Create)
-        // public IActionResult Create()
-        // {
-        //     return View();
-        // }
-        // //POST: Product/CREATE
-        // [HttpPost]
-        // [ValidateAntiForgeryToken]
-        // public async Task<IActionResult> Create(Product product)
-        // {
-        //     if (ModelState.IsValid)
-        //     {
-        //         _context.Add(product);
-        //         await _context.SaveChangesAsync();
-        //         return RedirectToAction(nameof(Index));
-        //     }
-        //     return View(product);  // Nếu ModelState không hợp lệ, quay lại form Create
-        // }
-
-        //GET api/Product
-        [HttpGet] //READ
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()//Hiện thông tin toàn bộ sản phẩm 
+        // GET: api/Product
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()// Xem toàn bộ sản phẩm
         {
-            return await _context.Product.ToListAsync();
+            var products = await _productService.GetAllAsync();
+            return Ok(products);
         }
 
-        // GET: api/Products/5
-        [HttpGet("{id}")] //READ
-        public async Task<ActionResult<Product>> GetProduct(int id)//Lấy thông tin sản phẩm theo ID
+        // GET: api/Product/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Product>> GetProduct(int id)// Tìm kiếm sản phẩm
         {
-            var product = await _context.Product.FindAsync(id);// truy vấn một bản ghi dựa trên khóa chính.
+            var product = await _productService.GetByIdAsync(id);
             if (product == null) return NotFound();
-            return product;
+            return Ok(product);
         }
 
-        // POST: api/Products
-        [HttpPost]// CREATE
-        public async Task<ActionResult<Product>> PostProduct(Product product)//Tạo sản phẩm mớimới
+        // POST: api/Product
+        [HttpPost]
+        public async Task<ActionResult<Product>> PostProduct(CreateDto dto)// Tạo sản phẩm 
         {
-            _context.Product.Add(product);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
+            var createdProduct = await _productService.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetProduct), new { id = createdProduct.Id }, createdProduct);
         }
 
-        // PUT: api/Products/5
-        [HttpPut("{id}")] //UPDATE
-        public async Task<IActionResult> PutProduct(int id, Product product)//Chỉnh sửa thông tin sản phẩm
+        // PUT: api/Product/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutProduct(int id, UpdateDto dto)// Cập nhật sản phẩm
         {
-            if (id != product.Id) return BadRequest();
+            if (id != dto.Id)
+                return BadRequest();
 
-            _context.Entry(product).State = EntityState.Modified;//đánh dấu là cần cập nhật dữ liệu.
-            await _context.SaveChangesAsync();
+            var success = await _productService.UpdateAsync(dto);
+            if (!success)
+                return NotFound();
 
             return NoContent();
         }
 
-        // DELETE: api/Products/5
-        [HttpDelete("{id}")] // DELETE
-        public async Task<IActionResult> DeleteProduct(int id)//Xóa sản phẩmphẩm
+        // DELETE: api/Product/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProduct(int id)// Xóa sản phẩm 
         {
-            var product = await _context.Product.FindAsync(id);
-            if (product == null) return NotFound();
-
-            _context.Product.Remove(product);
-            await _context.SaveChangesAsync();
-
+            var success = await _productService.DeleteAsync(id);
+            if (!success)
+                return NotFound();
             return NoContent();
         }
     }

@@ -276,3 +276,5 @@ E:\Test\MvcMovie\obj\Debug\net8.0\MvcMovie.pdb
 E:\Test\MvcMovie\obj\Debug\net8.0\MvcMovie.genruntimeconfig.cache
 E:\Test\MvcMovie\obj\Debug\net8.0\ref\MvcMovie.dll
 E:\Test\MvcMovie\obj\Debug\net8.0\MvcMovie.sourcelink.json
+E:\Test\MvcMovie\bin\Debug\net8.0\AutoMapper.dll
+E:\Test\MvcMovie\bin\Debug\net8.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
